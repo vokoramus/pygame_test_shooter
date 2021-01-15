@@ -223,7 +223,6 @@ while running:
         settings_screen = False
 
         all_sprites = pygame.sprite.Group()
-        player1 = new_player()
 
         # returning from settings_screen
         bin1 = GarbageBin('bin 2', 60, 80, WIDTH * 0.9, HEIGHT * 0.20, YELLOW)
@@ -243,6 +242,7 @@ while running:
         all_sprites.add(bin4)
 
 
+
         act1 = Action('d1', 100, 120, WIDTH * 0.10, HEIGHT * 0.90, WHITE)
         # act2 = Action('d2', 100, 120, WIDTH * 0.30, HEIGHT * 0.90, WHITE)
         # act3 = Action('d3', 100, 120, WIDTH * 0.50, HEIGHT * 0.90, WHITE)
@@ -259,6 +259,7 @@ while running:
         # all_sprites.add(act3)
         # all_sprites.add(act4)
 
+        player1 = new_player()
 
     # ================ end of returning from settings_screen
 
