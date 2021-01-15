@@ -1,0 +1,6 @@
+
+ ========== 2021-01-15 00:00:29.801539 ==========
+Traceback (most recent call last):
+  File "D:/Yura_OWN/python/pygame_test_shooter/project_folder/main2.py", line 89, in <module>
+    background = pygame.image.load(path.join(img_dir, 'starfield.png')).convert()
+FileNotFoundError: No such file or directory.
