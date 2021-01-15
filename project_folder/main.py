@@ -83,6 +83,11 @@ def show_go_screen():
                     last_key = now
                     waiting = False
 
+def new_player():
+    player = Player(r.choice([k for k in pics.keys()]), 30, 40, WIDTH * 0.50, HEIGHT * 0.50, GREEN)
+    all_sprites.add(player)
+    return player
+
 
 # Создаем игру и окно
 pygame.init()
@@ -95,6 +100,7 @@ clock = pygame.time.Clock()
 snd_dir = path.join(path.dirname(__file__), 'snd')
 sound_ok = pygame.mixer.Sound(path.join(snd_dir, '1.wav'))
 sound_bad = pygame.mixer.Sound(path.join(snd_dir, '2.wav'))
+sound_water = pygame.mixer.Sound(path.join(snd_dir, '3.mp3'))
 
 
 # Загрузка всей игровой графики
@@ -103,14 +109,16 @@ img_dir = path.join(path.dirname(__file__), 'img')
 # background_rect = background.get_rect()
 
 player_img = pygame.image.load(path.join(img_dir, "p1.png")).convert()
-player_mini_img = pygame.transform.scale(player_img, (10, 10))
+player_mini_img = pygame.transform.scale(player_img, (85, 150))
+# player_mini_img.set_alpha(50)  # transparency
 player_mini_img.set_colorkey(BLACK)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, id_, W, H, coordX, coordY, color):
         super(Player, self).__init__()
         self.image = pygame.Surface((W, H))
-        # self.image = player_img
+        # self.image = player_mini_img
         self.rect = self.image.get_rect()
         self.id_ = id_
         self.color = color
@@ -125,8 +133,6 @@ class Player(pygame.sprite.Sprite):
         self.image.fill(color)
         draw_text(self.image, str(self.id_), 18, self.rect.w / 2, self.rect.h / 2)
 
-
-pass
 
 class GarbageBin(pygame.sprite.Sprite):
     def __init__(self, id_, W, H, coordX, coordY, color):
@@ -160,34 +166,45 @@ class Action(pygame.sprite.Sprite):
 
         # self.image = pygame.Surface((W, H))
 
-        # filename = pics[self.id_[-1]][0]  # заменить на нормальный вариант, сейчас откусываю последний символ
-        filename = '1.png'  # заменить на нормальный вариант, сейчас откусываю последний символ
-
-        t = path.join(img_dir, filename)
+        self.filename = pics[self.id_][0]  # заменить на нормальный вариант, сейчас откусываю последний символ
+        # filename = '1.png'  # заменить на нормальный вариант, сейчас откусываю последний символ
+        print(0, self.filename, type(self.filename))
+        t = path.join(img_dir, self.filename)
         print(t)
-        img = pygame.image.load(path.join(img_dir, filename)).convert()
-        self.image = pygame.transform.scale(img, (75, 75))
+        img = pygame.image.load(path.join(img_dir, self.filename)).convert()
+        self.coordX = coordX
+        self.coordY = coordY
+        self.redraw(self.coordX,self.coordY)
 
-        self.rect = self.image.get_rect()
+        # self.image = pygame.transform.scale(img, (120, 120))
+        # self.rect = self.image.get_rect()
+
         # self.color = color
         # self.redraw(self.color)
+
+    # def redraw(self, color):
+    def redraw(self, coordX, coordY):
+        img = pygame.image.load(path.join(img_dir, self.filename)).convert()
+        self.image = pygame.transform.scale(img, (120, 120))
+        self.rect = self.image.get_rect()
         self.rect.center = (coordX, coordY)
 
-    def redraw(self, color):
-        self.image.fill(color)
-        draw_text(self.image, str(self.id_), 18, self.rect.w / 2, self.rect.h / 2)
 
-ids =[1,2,3]
+
+        # self.image.fill(color)
+        # draw_text(self.image, str(self.id_), 18, self.rect.w / 2, self.rect.h / 2)
+
+ids =[1, 2, 3]
 
 pics = {}
-pics['1'] = ['1.png', '1-1.png']
-pics['2'] = ['2.png', '2.png']
-pics['3'] = ['3.png', '2.png']
+pics['d1'] = ['1.png', '1-1.png']
+pics['d2'] = ['2.png', '2.png']
+pics['d3'] = ['3.png', '2.png']
 
 N_of_BINS = 10
 bins = ['bin ' + str(r.randint(1, 3)) for _ in range(N_of_BINS)]
 N_of_ACTS = 10
-actions = ['act ' + str(r.randint(1, 3)) for _ in range(N_of_ACTS)]
+actions = ['d' + str(r.randint(1, 3)) for _ in range(N_of_ACTS)]
 
 hit_bin, hit_act = 0, 0
 selected_rect = None
@@ -206,8 +223,7 @@ while running:
         settings_screen = False
 
         all_sprites = pygame.sprite.Group()
-        player1 = Player(r.choice(ids), 30, 40, WIDTH * 0.50, HEIGHT * 0.50, GREEN)
-        all_sprites.add(player1)
+        player1 = new_player()
 
         # returning from settings_screen
         bin1 = GarbageBin('bin 2', 60, 80, WIDTH * 0.9, HEIGHT * 0.20, YELLOW)
@@ -227,20 +243,20 @@ while running:
         all_sprites.add(bin4)
 
 
-        act1 = Action('act 1', 100, 120, WIDTH * 0.10, HEIGHT * 0.90, WHITE)
-        act2 = Action('act 2', 100, 120, WIDTH * 0.30, HEIGHT * 0.90, WHITE)
-        act3 = Action('act 3', 100, 120, WIDTH * 0.50, HEIGHT * 0.90, WHITE)
+        act1 = Action('d1', 100, 120, WIDTH * 0.10, HEIGHT * 0.90, WHITE)
+        # act2 = Action('d2', 100, 120, WIDTH * 0.30, HEIGHT * 0.90, WHITE)
+        # act3 = Action('d3', 100, 120, WIDTH * 0.50, HEIGHT * 0.90, WHITE)
         # act4 = Action(str(r.choice(actions)), 100, 120, WIDTH * 0.70, HEIGHT * 0.90, WHITE)
 
         actions_group = pygame.sprite.Group()
         actions_group.add(act1)
-        actions_group.add(act2)
-        actions_group.add(act3)
+        # actions_group.add(act2)
+        # actions_group.add(act3)
         # actions_group.add(act4)
 
         all_sprites.add(act1)
-        all_sprites.add(act2)
-        all_sprites.add(act3)
+        # all_sprites.add(act2)
+        # all_sprites.add(act3)
         # all_sprites.add(act4)
 
 
@@ -265,8 +281,7 @@ while running:
             player1.kill()
             actions_seq.clear()
             selected_rect = None
-            player1 = Player(str(r.choice(ids)), 30, 40, WIDTH * 0.50, HEIGHT * 0.50, GREEN)
-            all_sprites.add(player1)
+            player1 = new_player()
             b.color = GREEN
             b.redraw(b.color)
             sound_ok.play()
@@ -276,10 +291,21 @@ while running:
             actions_seq.clear()
             sound_bad.play()
 
-        # ACTIONS collision checking
+
+        # ACTIONS collision checking   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     hits_actions = pygame.sprite.spritecollide(player1, actions_group, False)
+
+
     if no_collisions:
+        for hit in actions_group:
+            hit.filename = pics[hit.id_][0]
+            hit.redraw(hit.coordX, hit.coordY)
+
         for hit in hits_actions:
+            hit.filename = pics[hit.id_][1]
+            hit.redraw(hit.coordX, hit.coordY)
+            sound_water.play()
+
             if len(actions_seq) == 0:
                 actions_seq.append(hit.id_)
             else:
@@ -304,10 +330,10 @@ while running:
             # print(event.button)
             if player1.rect.collidepoint(event.pos):
                 selected_rect = player1  # Select the colliding rect.
-                player1.redraw(color=RED)
+                # player1.redraw(color=RED)
         elif event.type == pygame.MOUSEBUTTONUP:
             selected_rect = None  # De-select the rect.
-            player1.redraw(color=GREEN)
+            # player1.redraw(color=GREEN)
         # Moving the player
         elif event.type == pygame.MOUSEMOTION:
             if selected_rect is not None:

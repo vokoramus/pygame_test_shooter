@@ -11,8 +11,8 @@ import sys
 # sys.stderr = open('out.txt', 'a')
 print('\n','='*10, datetime.datetime.now(), '='*10)
 # ==============================================================================
-img_dir = path.join(path.dirname(__file__), 'img')
-snd_dir = path.join(path.dirname(__file__), 'snd')
+img_dir = path.join(path.dirname(__file__), 'img2')
+snd_dir = path.join(path.dirname(__file__), 'snd2')
 
 WIDTH = 480
 HEIGHT = 600
