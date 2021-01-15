@@ -101,6 +101,8 @@ snd_dir = path.join(path.dirname(__file__), 'snd')
 sound_ok = pygame.mixer.Sound(path.join(snd_dir, '1.wav'))
 sound_bad = pygame.mixer.Sound(path.join(snd_dir, '2.wav'))
 sound_water = pygame.mixer.Sound(path.join(snd_dir, '3.mp3'))
+sound_scissors = pygame.mixer.Sound(path.join(snd_dir, '4.mp3'))
+
 
 
 # Загрузка всей игровой графики
@@ -198,8 +200,8 @@ ids =[1, 2, 3]
 
 pics = {}
 pics['d1'] = ['1.png', '1-1.png']
-pics['d2'] = ['2.png', '2.png']
-pics['d3'] = ['3.png', '2.png']
+pics['d2'] = ['2.png', '2-1.png']
+pics['d3'] = ['3.png', '3-1.png']
 
 N_of_BINS = 10
 bins = ['bin ' + str(r.randint(1, 3)) for _ in range(N_of_BINS)]
@@ -244,18 +246,18 @@ while running:
 
 
         act1 = Action('d1', 100, 120, WIDTH * 0.10, HEIGHT * 0.90, WHITE)
-        # act2 = Action('d2', 100, 120, WIDTH * 0.30, HEIGHT * 0.90, WHITE)
+        act2 = Action('d2', 100, 120, WIDTH * 0.30, HEIGHT * 0.90, WHITE)
         # act3 = Action('d3', 100, 120, WIDTH * 0.50, HEIGHT * 0.90, WHITE)
         # act4 = Action(str(r.choice(actions)), 100, 120, WIDTH * 0.70, HEIGHT * 0.90, WHITE)
 
         actions_group = pygame.sprite.Group()
         actions_group.add(act1)
-        # actions_group.add(act2)
+        actions_group.add(act2)
         # actions_group.add(act3)
         # actions_group.add(act4)
 
         all_sprites.add(act1)
-        # all_sprites.add(act2)
+        all_sprites.add(act2)
         # all_sprites.add(act3)
         # all_sprites.add(act4)
 
@@ -276,8 +278,9 @@ while running:
     hits_bins = pygame.sprite.spritecollide(player1, bins_group, False)
     for b in hits_bins:
         bin_tryed = b.id_
+        # ДОБАВИТЬ: подсветка выбранной корзины (или открывается крышка бака)
         print(2, b.id_, actions_seq)
-
+        # ДОБАВИТЬ: если действие - отпускание кнопки мыши
         if actions_seq == player1.fit_acts and b.id_ == player1.fit_bin:
             player1.kill()
             actions_seq.clear()
@@ -293,19 +296,22 @@ while running:
             sound_bad.play()
 
 
-        # ACTIONS collision checking   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # ACTIONS collision checking
     hits_actions = pygame.sprite.spritecollide(player1, actions_group, False)
 
 
-    if no_collisions:
-        for hit in actions_group:
-            hit.filename = pics[hit.id_][0]
-            hit.redraw(hit.coordX, hit.coordY)
+    if no_collisions:  # чтобы фиксировать только переход, а не в течение всего времени нахождения над картинки действия
+        for a in actions_group:
+            a.filename = pics[a.id_][0]
+            a.redraw(a.coordX, a.coordY)
 
         for hit in hits_actions:
             hit.filename = pics[hit.id_][1]
             hit.redraw(hit.coordX, hit.coordY)
-            sound_water.play()
+            if hit.id_ == 'd1':
+                sound_water.play()  # СДЕЛАТЬ! индивидуальные звуки для каждого действия
+            else:
+                sound_scissors.play()
 
             if len(actions_seq) == 0:
                 actions_seq.append(hit.id_)
