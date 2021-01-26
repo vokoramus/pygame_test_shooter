@@ -431,5 +431,10 @@ project_folder
 		test.py
 		TODO.txt
 [Open project files]
+0=main.py
 [Selected Project Files]
-Main=
+Main=main.py
+Selected=main.py
+[main.py]
+TopLine=1
+Caret=1,1
