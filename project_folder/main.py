@@ -134,7 +134,7 @@ sound_scissors = pygame.mixer.Sound(path.join(snd_dir, '4.mp3'))
 
 
 bins = {}
-with open('data/bins.csv') as f:  # TODO переместить файл в папку 'data'
+with open('data/bins.csv') as f:
     f.readline()
     reader = csv.reader(f)
     for row in reader:
@@ -142,7 +142,7 @@ with open('data/bins.csv') as f:  # TODO переместить файл в па
 # print(bins)
 
 acts = {}
-with open('data/acts.csv') as f:  # TODO переместить файл в папку 'data'
+with open('data/acts.csv') as f:
     f.readline()
     reader = csv.reader(f)
     for row in reader:
@@ -258,7 +258,17 @@ player1 = new_player()
 
 settings_screen = True
 running = True
+pygame_events_prev = None ######################### temp
+
 while running:
+    pygame_events = pygame.event.get()
+
+    event_types = []
+    for e in pygame_events:
+        event_types.append(e.type)
+    # if pygame_events_prev != pygame_events:
+    #     print(pygame_events, type(pygame_events))
+    # pygame_events_prev = pygame_events.copy()
 
     if settings_screen:
         show_go_screen()  # Entering to settings_screen
@@ -293,33 +303,30 @@ while running:
             print(actions_seq, player1.fit_acts)
 
             # ДОБАВИТЬ: если действие == отпускание кнопки мыши
-            if actions_seq == player1.fit_acts and hit.id_ == player1.fit_bin:
-                player1.kill()
-                selected_rect = None
-                player1 = new_player()
-                sound_ok.play()
-##                b.color = GREEN
-##                b.redraw(b.coordX, b.coordY)
-            else:
-                sound_bad.play()
-##                b.color = RED
-##                b.redraw(b.coordX, b.coordY)
+            if event.type == pygame.MOUSEBUTTONUP:
+                if actions_seq == player1.fit_acts and hit.id_ == player1.fit_bin:
+                    player1.kill()
+                    selected_rect = None
+                    player1 = new_player()
+                    sound_ok.play()
+    ##                b.color = GREEN
+    ##                b.redraw(b.coordX, b.coordY)
+                else:
+                    sound_bad.play()
+    ##                b.color = RED
+    ##                b.redraw(b.coordX, b.coordY)
 
-            actions_seq.clear()
+                actions_seq.clear()
 
         # ACTIONS collision checking
     hits_actions = pygame.sprite.spritecollide(player1, actions_group, False)
 
     # if no_collisions:  # чтобы фиксировать только переход, а не в течение всего времени нахождения над картинки действия
-    if hits_actions != hits_actions_prev:
-        # for a in actions_group:
-        #     a.image = draw_img(a.img1, a.rect.w, a.rect.h)
-
-        hit_prev = hit
+    if hits_actions != hits_actions_prev or event.type == pygame.MOUSEBUTTONUP:
+        for a in actions_group:
+            a.image = draw_img(a.img1, a.rect.w, a.rect.h)
 
         for hit in hits_actions:
-#             print(hit)
-#             print(hit.sound)
             hit.image = draw_img(hit.img2, hit.rect.w, hit.rect.h)
             hit.sound.play()
 
@@ -330,13 +337,14 @@ while running:
                 if hit.id_ != actions_seq[-1]:
                     actions_seq.append(hit.id_)
 #                     print(1, actions_seq, actions_seq == player1.fit_acts)
+            hit_prev = hit
 
     hits_actions_prev = hits_actions
 
     no_collisions = True if not hits_bins and not hits_actions else False
 
         # ================ EVENTS ================
-    for event in pygame.event.get():
+    for event in pygame_events:
         # check for closing window
         if event.type == pygame.QUIT:
             running = False
