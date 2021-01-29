@@ -106,7 +106,7 @@ def new_player():
     return player
 
 def new_bin(id_, x, y):
-    bin = GarbageBin(str(id_), bins[str(id_)], 60, 80, x, y, YELLOW)
+    bin = GarbageBin(str(id_), bins[str(id_)], 200, 240, x, y, YELLOW)
     bins_group.add(bin)
     all_sprites.add(bin)
 
@@ -177,7 +177,7 @@ class Player(pygame.sprite.Sprite):
         self.fit_bin = player_data[3]
 
         player_img = pygame.image.load(path.join(img_dir, self.img)).convert()
-        player_mini_img = pygame.transform.scale(player_img, (65, 110))
+        player_mini_img = pygame.transform.scale(player_img, (30, 100))
         player_mini_img.set_colorkey(BLACK)
         self.image = player_mini_img
 
@@ -197,7 +197,7 @@ class GarbageBin(pygame.sprite.Sprite):
         self.id_ = id_
         self.img1 = bins[0]
         self.img2 = bins[1]
-        self.image = draw_img(self.img1, 55, 80)
+        self.image = draw_img(self.img1, int(80*0.8), int(140*0.8))
 
         # ДЛЯ ОТЛАДКИ:
 #         self.image = pygame.Surface((W, H))
@@ -227,7 +227,7 @@ class Action(pygame.sprite.Sprite):
         self.img2 = acts[1]
         self.sound = pygame.mixer.Sound(path.join(snd_dir, acts[2]))
 
-        self.image = draw_img(self.img1, 100, 150)
+        self.image = draw_img(self.img1, 100, 80)
                 
         self.rect = self.image.get_rect()
         self.rect.center = (coordX, coordY)
@@ -239,19 +239,19 @@ selected_rect = None
 actions_seq = [] # Последовательность произведенных операций с элементом
 no_collisions = True
 bin_tryed = None
-
+hits_actions_prev = None
 
 all_sprites = pygame.sprite.Group()
 bins_group = pygame.sprite.Group() 
 actions_group = pygame.sprite.Group()
 
-new_bin(1,  WIDTH * 0.9, HEIGHT * 0.20)
-new_bin(2,  WIDTH * 0.9, HEIGHT * 0.40)
-new_bin(3,  WIDTH * 0.9, HEIGHT * 0.60)
+new_act(1,  WIDTH * 0.9, HEIGHT * 0.20)
+new_act(2,  WIDTH * 0.9, HEIGHT * 0.40)
+new_act(3,  WIDTH * 0.9, HEIGHT * 0.60)
 
-new_act(1, WIDTH * 0.10, HEIGHT * 0.90)
-new_act(2, WIDTH * 0.30, HEIGHT * 0.90)
-new_act(3, WIDTH * 0.50, HEIGHT * 0.90)
+new_bin(1, WIDTH * 0.10, HEIGHT * 0.90)
+new_bin(2, WIDTH * 0.30, HEIGHT * 0.90)
+new_bin(3, WIDTH * 0.50, HEIGHT * 0.90)
 
 player1 = new_player()
 
@@ -295,26 +295,27 @@ while running:
             # ДОБАВИТЬ: если действие == отпускание кнопки мыши
             if actions_seq == player1.fit_acts and hit.id_ == player1.fit_bin:
                 player1.kill()
-                actions_seq.clear()
                 selected_rect = None
                 player1 = new_player()
+                sound_ok.play()
 ##                b.color = GREEN
 ##                b.redraw(b.coordX, b.coordY)
-                sound_ok.play()
             else:
+                sound_bad.play()
 ##                b.color = RED
 ##                b.redraw(b.coordX, b.coordY)
-                actions_seq.clear()
-                sound_bad.play()
 
+            actions_seq.clear()
 
         # ACTIONS collision checking
     hits_actions = pygame.sprite.spritecollide(player1, actions_group, False)
 
+    # if no_collisions:  # чтобы фиксировать только переход, а не в течение всего времени нахождения над картинки действия
+    if hits_actions != hits_actions_prev:
+        # for a in actions_group:
+        #     a.image = draw_img(a.img1, a.rect.w, a.rect.h)
 
-    if no_collisions:  # чтобы фиксировать только переход, а не в течение всего времени нахождения над картинки действия
-        for a in actions_group:
-            a.image = draw_img(a.img1, a.rect.w, a.rect.h)
+        hit_prev = hit
 
         for hit in hits_actions:
 #             print(hit)
@@ -330,6 +331,7 @@ while running:
                     actions_seq.append(hit.id_)
 #                     print(1, actions_seq, actions_seq == player1.fit_acts)
 
+    hits_actions_prev = hits_actions
 
     no_collisions = True if not hits_bins and not hits_actions else False
 
@@ -350,6 +352,8 @@ while running:
                 # player1.redraw(color=RED)
         elif event.type == pygame.MOUSEBUTTONUP:
             selected_rect = None  # De-select the rect.
+
+
             # player1.redraw(color=GREEN)
 
         # Moving the player
