@@ -197,7 +197,7 @@ class GarbageBin(pygame.sprite.Sprite):
         self.id_ = id_
         self.img1 = bins[0]
         self.img2 = bins[1]
-        self.image = draw_img(self.img1, int(80*0.8), int(140*0.8))
+        self.image = draw_img(self.img1, int(80*1.5), int(140*1.5))
 
         # ДЛЯ ОТЛАДКИ:
 #         self.image = pygame.Surface((W, H))
@@ -249,9 +249,9 @@ new_act(1,  WIDTH * 0.9, HEIGHT * 0.20)
 new_act(2,  WIDTH * 0.9, HEIGHT * 0.40)
 new_act(3,  WIDTH * 0.9, HEIGHT * 0.60)
 
-new_bin(1, WIDTH * 0.10, HEIGHT * 0.90)
-new_bin(2, WIDTH * 0.30, HEIGHT * 0.90)
-new_bin(3, WIDTH * 0.50, HEIGHT * 0.90)
+new_bin(1, WIDTH * 0.10, HEIGHT * 0.80)
+new_bin(2, WIDTH * 0.30, HEIGHT * 0.80)
+new_bin(3, WIDTH * 0.50, HEIGHT * 0.80)
 
 player1 = new_player()
 
@@ -289,8 +289,8 @@ while running:
 
 
         # BINS collision checking
-    hits_bins = pygame.sprite.spritecollide(player1, bins_group, False)
-    if no_collisions:  # чтобы фиксировать только переход, а не в течение всего времени нахождения над картинки действия
+    hits_bins = pygame.sprite.spritecollide(player1, bins_group, False, pygame.sprite.collide_rect_ratio(.70))
+    if no_collisions or pygame.MOUSEBUTTONUP in event_types:  # чтобы фиксировать только переход, а не в течение всего времени нахождения над картинки действия
         for b in bins_group:
             b.image = draw_img(b.img1, b.rect.w, b.rect.h)  # рисуем бак с закрытой крышкой
 
@@ -303,7 +303,7 @@ while running:
             print(actions_seq, player1.fit_acts)
 
             # ДОБАВИТЬ: если действие == отпускание кнопки мыши
-            if event.type == pygame.MOUSEBUTTONUP:
+            if pygame.MOUSEBUTTONUP in event_types:
                 if actions_seq == player1.fit_acts and hit.id_ == player1.fit_bin:
                     player1.kill()
                     selected_rect = None
@@ -312,6 +312,7 @@ while running:
     ##                b.color = GREEN
     ##                b.redraw(b.coordX, b.coordY)
                 else:
+                    player1.rect.bottom = hit.rect.bottom - hit.rect.h + 30
                     sound_bad.play()
     ##                b.color = RED
     ##                b.redraw(b.coordX, b.coordY)
@@ -322,7 +323,7 @@ while running:
     hits_actions = pygame.sprite.spritecollide(player1, actions_group, False)
 
     # if no_collisions:  # чтобы фиксировать только переход, а не в течение всего времени нахождения над картинки действия
-    if hits_actions != hits_actions_prev or event.type == pygame.MOUSEBUTTONUP:
+    if hits_actions != hits_actions_prev:
         for a in actions_group:
             a.image = draw_img(a.img1, a.rect.w, a.rect.h)
 
